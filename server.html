@@ -1,0 +1,639 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Server API Reference</title>
+
+    <style>
+      .highlight table td { padding: 5px; }
+.highlight table pre { margin: 0; }
+.highlight, .highlight .w {
+  color: #f8f8f2;
+  background-color: #272822;
+}
+.highlight .err {
+  color: #151515;
+  background-color: #ac4142;
+}
+.highlight .c, .highlight .cd, .highlight .cm, .highlight .c1, .highlight .cs {
+  color: #505050;
+}
+.highlight .cp {
+  color: #f4bf75;
+}
+.highlight .nt {
+  color: #f4bf75;
+}
+.highlight .o, .highlight .ow {
+  color: #d0d0d0;
+}
+.highlight .p, .highlight .pi {
+  color: #d0d0d0;
+}
+.highlight .gi {
+  color: #90a959;
+}
+.highlight .gd {
+  color: #ac4142;
+}
+.highlight .gh {
+  color: #6a9fb5;
+  background-color: #151515;
+  font-weight: bold;
+}
+.highlight .k, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .kv {
+  color: #aa759f;
+}
+.highlight .kc {
+  color: #d28445;
+}
+.highlight .kt {
+  color: #d28445;
+}
+.highlight .kd {
+  color: #d28445;
+}
+.highlight .s, .highlight .sb, .highlight .sc, .highlight .sd, .highlight .s2, .highlight .sh, .highlight .sx, .highlight .s1 {
+  color: #90a959;
+}
+.highlight .sr {
+  color: #75b5aa;
+}
+.highlight .si {
+  color: #8f5536;
+}
+.highlight .se {
+  color: #8f5536;
+}
+.highlight .nn {
+  color: #f4bf75;
+}
+.highlight .nc {
+  color: #f4bf75;
+}
+.highlight .no {
+  color: #f4bf75;
+}
+.highlight .na {
+  color: #6a9fb5;
+}
+.highlight .m, .highlight .mf, .highlight .mh, .highlight .mi, .highlight .il, .highlight .mo, .highlight .mb, .highlight .mx {
+  color: #90a959;
+}
+.highlight .ss {
+  color: #90a959;
+}
+    </style>
+    <link href="stylesheets/screen.css" rel="stylesheet" media="screen" />
+    <link href="stylesheets/print.css" rel="stylesheet" media="print" />
+      <script src="javascripts/all.js"></script>
+  </head>
+
+  <body class="server" data-languages="[&quot;curl&quot;]">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="images/navbar.png" />
+      </span>
+    </a>
+    <div class="tocify-wrapper">
+      <img src="images/logo.png" />
+        <div class="lang-selector">
+              <a href="#" data-language-name="curl">curl</a>
+        </div>
+        <div class="search">
+          <input type="text" class="search" id="input-search" placeholder="Search">
+        </div>
+        <ul class="search-results"></ul>
+      <div id="toc">
+      </div>
+        <ul class="toc-footer">
+            <li><a href='https://github.com/lord/slate'>Documentation Powered by Slate</a></li>
+        </ul>
+    </div>
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+        <h1 id="introduction">Introduction</h1>
+
+<p>Team&rsquo;s private networks as designed in Teams 2.0 are composed of several servers, which are the actual VPN service providers hosted in the team&rsquo;s own infrastructure.</p>
+
+<p>This API&rsquo;s main goal is to provide a means for those servers to be registered and managed via the CLI tool provided by Cloak. Note that most server management functionality will be exposed through a web interface; this API is focused on the few aspects that require interaction with the private endpoint itself.</p>
+
+<h1 id="authentication">Authentication</h1>
+<pre class="highlight shell"><code>curl -u <span class="s1">'server_id:auth_token'</span> <span class="se">\</span>
+  https://getcloak.com/api/server/
+</code></pre>
+
+<p>In order to authenticate an API call, the client must use <code class="prettyprint">HTTP Basic</code> Authentication sending <code class="prettyprint">server_id</code> as username and <code class="prettyprint">auth_token</code> as password.</p>
+
+<h1 id="common-data-structures">Common data structures</h1>
+
+<h2 id="server">Server</h2>
+
+<p>The Server structure contains general information about the registered server. Clients will need this to generate compatible VPN configurations, if nothing else.</p>
+
+<table><thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>server_id</td>
+<td>string</td>
+<td>A unique server identifier.</td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>A human-readable name.</td>
+</tr>
+<tr>
+<td>api_version</td>
+<td>string</td>
+<td>The server&rsquo;s registered API version.</td>
+</tr>
+<tr>
+<td>target</td>
+<td>Target</td>
+<td>The associated target.</td>
+</tr>
+<tr>
+<td>csr_pending</td>
+<td>bool</td>
+<td>True if we have a certificate signing request waiting for approval.</td>
+</tr>
+</tbody></table>
+
+<h3 id="target">Target</h3>
+
+<table><thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>target_id</td>
+<td>string</td>
+<td>Stable identifier.</td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Human-readable name.</td>
+</tr>
+<tr>
+<td>openvpn</td>
+<td>[OpenVPN]</td>
+<td>OpenVPN configurations.</td>
+</tr>
+<tr>
+<td>ikev2</td>
+<td>[IKEv2]</td>
+<td>IKEv2 configurations.</td>
+</tr>
+</tbody></table>
+
+<h3 id="openvpn">OpenVPN</h3>
+
+<table><thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>fqdn</td>
+<td>string</td>
+<td>Fully qualified domain name clients will connect to.</td>
+</tr>
+<tr>
+<td>proto</td>
+<td>string</td>
+<td>IP protocol: &ldquo;udp&rdquo; or &ldquo;tcp&rdquo;.</td>
+</tr>
+<tr>
+<td>port</td>
+<td>number</td>
+<td>IP port.</td>
+</tr>
+<tr>
+<td>cipher</td>
+<td>string</td>
+<td>&ndash;cipher arg.</td>
+</tr>
+<tr>
+<td>digest</td>
+<td>string</td>
+<td>&ndash;auth arg.</td>
+</tr>
+</tbody></table>
+
+<h3 id="ikev2">IKEv2</h3>
+
+<table><thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>fqdn</td>
+<td>string</td>
+<td>Fully qualified domain name clients will connect to.</td>
+</tr>
+<tr>
+<td>server_id</td>
+<td>string</td>
+<td>IKEv2 server identifier (FQDN).</td>
+</tr>
+<tr>
+<td>client_ca_dn</td>
+<td>string</td>
+<td>Distinguished name of the client CA.</td>
+</tr>
+</tbody></table>
+
+<h1 id="server-management">Server management</h1>
+
+<h2 id="register-a-new-server">Register a new Server</h2>
+<pre class="highlight shell"><code>curl -X POST <span class="se">\</span>
+  -H <span class="s1">'X-Cloak-API-Version: 2017-01-01'</span> <span class="se">\</span>
+  -d <span class="nv">email</span><span class="o">=</span><span class="s1">'alice@example.com'</span> <span class="se">\</span>
+  -d <span class="nv">password</span><span class="o">=</span><span class="s1">'password'</span> <span class="se">\</span>
+  -d <span class="nv">target</span><span class="o">=</span><span class="s1">'tgt_2higoiagkm5prjpu'</span> <span class="se">\</span>
+  -d <span class="nv">name</span><span class="o">=</span><span class="s1">'office-01.example.com'</span> <span class="se">\</span>
+  https://getcloak.com/api/server/servers/
+</code></pre>
+<pre class="highlight plaintext"><code>{
+  "server_id": "srv_ygxxlj3f5euebiks",
+  "auth_token": "ZTRkP2GW4xOmGpxPzeSn",
+  "server": {
+    "server_id": "srv_ygxxlj3f5euebiks",
+    "name": "office-01.example.com",
+    "api_version": "2017-01-01",
+    "target": {
+      "target_id": "tgt_2higoiagkm5prjpu",
+      "name": "Office",
+      "openvpn": [
+        {
+          "fqdn": "office.cloak.example.com",
+          "proto": "udp",
+          "port" : 443,
+          "cipher": "AES-256-CBC",
+          "digest": "SHA256",
+        },
+        {
+          "fqdn": "office.cloak.example.com",
+          "proto": "tcp",
+          "port" : 443,
+          "cipher": "AES-256-CBC",
+          "digest": "SHA256",
+        }
+      ],
+      "ikev2": [
+        {
+          "fqdn": "office.cloak.example.com",
+          "server_id": "ikev2.example.com",
+          "client_ca_dn": "O=Cloak for Teams, OU=Acme, CN=Acme Clients",
+        }
+      ]
+    }
+  }
+}
+</code></pre>
+
+<p><strong>POST <code class="prettyprint">/api/server/servers/</code></strong></p>
+
+<p><strong>Authenticated</strong>: NO</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>email</td>
+<td>Yes</td>
+<td>Cloak login email.</td>
+</tr>
+<tr>
+<td>password</td>
+<td>Yes</td>
+<td>Cloak login password.</td>
+</tr>
+<tr>
+<td>target</td>
+<td>Yes</td>
+<td>The <code class="prettyprint">target_id</code> to link this server to.</td>
+</tr>
+<tr>
+<td>name</td>
+<td>Yes</td>
+<td>The server&rsquo;s human-readable name (hostname is probably a good choice).</td>
+</tr>
+</tbody></table>
+
+<h3 id="response">Response</h3>
+
+<p>If successful, returns 201 with server information.</p>
+
+<table><thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>server_id</td>
+<td>string</td>
+<td>Unique server identifier. Must be saved.</td>
+</tr>
+<tr>
+<td>auth_token</td>
+<td>string</td>
+<td>Authorization token. Must be saved securely.</td>
+</tr>
+<tr>
+<td>server</td>
+<td><a href="#server">Server</a></td>
+<td>The newly registered server structure.</td>
+</tr>
+</tbody></table>
+
+<h2 id="get-server-information">Get server information</h2>
+<pre class="highlight shell"><code>curl -u <span class="s1">'server_id:auth_token'</span> https://getcloak.com/api/server/server/
+</code></pre>
+<pre class="highlight plaintext"><code>{
+  "server_id": "srv_ygxxlj3f5euebiks",
+  "name": "office-01.example.com",
+  "api_version": "2017-01-01",
+  "target": {
+    "target_id": "tgt_2higoiagkm5prjpu",
+    "name": "Office",
+    "openvpn": [
+      {
+        "fqdn": "office.cloak.example.com",
+        "proto": "udp",
+        "port" : 443,
+        "cipher": "AES-256-CBC",
+        "digest": "SHA256",
+      },
+      {
+        "fqdn": "office.cloak.example.com",
+        "proto": "tcp",
+        "port" : 443,
+        "cipher": "AES-256-CBC",
+        "digest": "SHA256",
+      }
+    ],
+    "ikev2": [
+      {
+        "fqdn": "office.cloak.example.com",
+        "server_id": "ikev2.example.com",
+        "client_ca_dn": "O=Cloak for Teams, OU=Acme, CN=Acme Clients",
+      }
+    ]
+  }
+}
+</code></pre>
+
+<p>Retrieves the same server information returned by the registration API.</p>
+
+<p><strong>GET <code class="prettyprint">/api/server/server/</code></strong></p>
+
+<p><strong>Authenticated</strong>: YES</p>
+
+<h3 id="response">Response</h3>
+
+<p>If successful, this will return a <a href="#server">Server</a> structure.</p>
+
+<h2 id="update-server-information">Update server information</h2>
+<pre class="highlight shell"><code>curl -X POST <span class="se">\</span>
+  -u <span class="s1">'server_id:auth_token'</span> <span class="se">\</span>
+  -d <span class="nv">name</span><span class="o">=</span>office-02.example.com <span class="se">\</span>
+  -d <span class="nv">api_version</span><span class="o">=</span>2017-02-28 <span class="se">\</span>
+  https://getcloak.com/api/server/server/
+</code></pre>
+<pre class="highlight plaintext"><code>{
+  "server_id": "srv_ygxxlj3f5euebiks",
+  "name": "office-02.example.com",
+  "api_version": "2017-02-28",
+  "target": {
+    "target_id": "tgt_2higoiagkm5prjpu",
+    "name": "Office",
+    "openvpn": [
+      {
+        "fqdn": "office.cloak.example.com",
+        "proto": "udp",
+        "port" : 443,
+        "cipher": "AES-256-CBC",
+        "digest": "SHA256",
+      },
+      {
+        "fqdn": "office.cloak.example.com",
+        "proto": "tcp",
+        "port" : 443,
+        "cipher": "AES-256-CBC",
+        "digest": "SHA256",
+      }
+    ],
+    "ikev2": [
+      {
+        "fqdn": "office.cloak.example.com",
+        "server_id": "ikev2.example.com",
+        "client_ca_dn": "O=Cloak for Teams, OU=Acme, CN=Acme Clients",
+      }
+    ]
+  }
+}
+</code></pre>
+
+<p>Updates the name or default API version of the registered server.</p>
+
+<p><strong>POST <code class="prettyprint">/api/server/server/</code></strong></p>
+
+<p><strong>Authenticated</strong>: YES</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>No</td>
+<td>The server&rsquo;s human-readable name (hostname is probably a good choice).</td>
+</tr>
+<tr>
+<td>api_version</td>
+<td>No</td>
+<td>The server&rsquo;s default API version.</td>
+</tr>
+</tbody></table>
+
+<h3 id="response">Response</h3>
+
+<p>If successful, this will return a <a href="#server">Server</a> structure.</p>
+
+<h2 id="request-a-certificate">Request a certificate</h2>
+<pre class="highlight shell"><code>curl -X POST <span class="se">\</span>
+  -u <span class="s1">'server_id:auth_token'</span> <span class="se">\</span>
+  -d <span class="nv">csr</span><span class="o">=</span>base64 <span class="se">\</span>
+  https://getcloak.com/api/server/server/csr/
+</code></pre>
+
+<p><strong>POST <code class="prettyprint">/api/server/server/csr/</code></strong></p>
+
+<p><strong>Authenticated</strong>: YES</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>csr</td>
+<td>Yes</td>
+<td>Base64-encoded CSR.</td>
+</tr>
+</tbody></table>
+
+<p>The CSR must contain an RSA key of at least 2048 bits. All other fields are ignored.</p>
+
+<h3 id="reponse">Reponse</h3>
+
+<p>If the request was created, this returns an empty 202 response. All requests are approved through the web interface.</p>
+
+<h2 id="get-the-current-certificate">Get the current certificate</h2>
+<pre class="highlight shell"><code>curl  -u <span class="s1">'server_id:auth_token'</span> <span class="se">\</span>
+  https://getcloak.com/api/server/pki/
+</code></pre>
+<pre class="highlight plaintext"><code>{
+  "entity": {"name": name, "serial": serial, "pem": pem},
+  "intermediates": [{...}, ...],
+  "extras": [{...}, ...],
+  "anchors": [{...}, ...],
+  "client_ca": {...},
+  "crls": [url, ...],
+  "tag": "3a8c5b8e421ed019"
+}
+</code></pre>
+
+<p>Retrieves the server&rsquo;s current certificate and associated PKI information.</p>
+
+<p><strong>GET <code class="prettyprint">/api/server/server/pki/?tag=6748f094ca6a9e31</code></strong></p>
+
+<p><strong>Authenticated</strong>: YES</p>
+
+<h3 id="query-parameters">Query parameters</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>tag</td>
+<td>no</td>
+<td>A tag value returned in a previous result.</td>
+</tr>
+</tbody></table>
+
+<h3 id="reponse">Reponse</h3>
+
+<p>If the server has no current certificate, all certificates will be null.</p>
+
+<p>Successful responses will include a tag identifying the current state, similar to an ETag. If this is provided in a subsequent request and if nothing has changed, the server will respond with 304 (not modified).</p>
+
+<table><thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>anchor</td>
+<td><a href="#certificate">Certificate</a>?</td>
+<td>One or more anchor certificates for this network&rsquo;s PKI.</td>
+</tr>
+<tr>
+<td>server_ca</td>
+<td><a href="#certificate">Certificate</a>?</td>
+<td>The certificate that directly signs server certs.</td>
+</tr>
+<tr>
+<td>client_ca</td>
+<td><a href="#certificate">Certificate</a>?</td>
+<td>The certificate that directly signs client certs.</td>
+</tr>
+<tr>
+<td>entity</td>
+<td><a href="#certificate">Certificate</a>?</td>
+<td>The server&rsquo;s certificate.</td>
+</tr>
+<tr>
+<td>crls</td>
+<td>[string]</td>
+<td>URLs to all relevant CRLs.</td>
+</tr>
+<tr>
+<td>tag</td>
+<td>string?</td>
+<td>A string identifying the current PKI state.</td>
+</tr>
+</tbody></table>
+
+<h4 id="certificate">Certificate</h4>
+
+<table><thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>A human-readable name, usually the subject common name.</td>
+</tr>
+<tr>
+<td>serial</td>
+<td>string</td>
+<td>Hex-encoded serial number.</td>
+</tr>
+<tr>
+<td>pem</td>
+<td>string</td>
+<td>The PEM-encoded certificate.</td>
+</tr>
+</tbody></table>
+
+      </div>
+      <div class="dark-box">
+          <div class="lang-selector">
+                <a href="#" data-language-name="curl">curl</a>
+          </div>
+      </div>
+    </div>
+  </body>
+</html>
